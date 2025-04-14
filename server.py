@@ -1,5 +1,5 @@
 import logging
-from hdc.hdc import list_app, get_uilayout
+from hdc.hdc import list_app, get_uilayout, launch_package
 from mcp.server.fastmcp import FastMCP, Image
 
 # Initialize MCP and device manager
@@ -8,7 +8,7 @@ mcp = FastMCP("harmonyos")
 
 mcp.tool()(list_app)
 mcp.tool()(get_uilayout)
-# @mcp.tool(launch_package)
+mcp.tool()(launch_package)
 
 # @mcp.tool()
 # async def click(center: str):

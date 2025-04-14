@@ -25,31 +25,8 @@ async def check_hdc_installed() -> bool:
 #     return output
 
 
-async def launch_package(package_name: str) -> str:
-    """
-    launch the given package.
-    Args:
-        :package_name:
-    """
-    command = f"bm dump -n {package_name}"
-    success, output = await self.device.shell(command)
-    
-    if success:
-        json_start = output.find("{")
-        if json_start == -1:
-            return "[Fail] No such package"
-        
-        import json
-        package_info = json.loads(output[json_start:])
 
-        bundle_name = package_info["hapModuleInfos"][0]["bundleName"]
-        entry_ability = package_info["hapModuleInfos"][0]["mainAbility"]
         
-        success, res = _execute_command(f"hdc shell aa start -b {bundle_name} -a {entry_ability}").output
-        if not success or "start ability successfully" not in res:
-            return f"[Fail] {res}"
-        return f"[Success] {res}"        
-
 
 # async def take_screenshot(self) -> None:
 #     """
