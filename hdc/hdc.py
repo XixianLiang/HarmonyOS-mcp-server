@@ -8,10 +8,10 @@ import re
 import subprocess
 from typing import Union, List, Dict, Tuple, TypedDict
 
-from .execption import HdcError, DeviceNotFoundError, DeviceAmbigiousError
-from .proto import KeyCode
-from .utils import FreePort
-from . import logger
+# from .execption import HdcError, DeviceNotFoundError, DeviceAmbigiousError
+# from .proto import KeyCode
+# from .utils import FreePort
+# from . import logger
 from logging import INFO, info
 from mcp.server.fastmcp import Image
 
@@ -267,14 +267,37 @@ async def get_screenshot() -> Image:
 
 async def call_number(phone_numer: str) -> str:
     pass
+async def launch_package(package_name: str) -> str:
+    """
+    launch the given package.
+    Args:
+        :package_name:
+    """
+    success, output = await _execute_command(f"hdc shell bm dump -n {package_name}")
+    if not success:
+        return f"[Fail] fail when dumping: {output}"
 
+    json_start = output.find("{")
+    if json_start == -1:
+        return "[Fail] No such package"
+    
+    import json
+    package_info = json.loads(output[json_start:])
+
+    bundle_name = package_info["hapModuleInfos"][0]["bundleName"]
+    entry_ability = package_info["hapModuleInfos"][0]["mainAbility"]
+    
+    success, res = await _execute_command(f"hdc shell aa start -b {bundle_name} -a {entry_ability}")
+    if not success or "start ability successfully" not in res:
+        return f"[Fail] {res}"
+    return f"[Success] {res}"
 
 async def dump_hierarchy() -> Dict:
     """
     """
     _tmp_path = f"/data/local/tmp/hierarchy_tmp.json"
     await _execute_command(f"hdc shell uitest dumpLayout -p {_tmp_path}")
-    await _execute_command(f"hdc recv file {_tmp_path} tmp.json")
+    await _execute_command(f"hdc file recv {_tmp_path} ./tmp.json")
     
         
 async def get_uilayout() -> str:
@@ -338,3 +361,5 @@ async def get_uilayout() -> str:
     result = "\n\n".join(clickable_elements)
     return result
 
+if __name__ == "__main__":
+    asyncio.run(launch_package("com.huawei.hmos.browser"))
