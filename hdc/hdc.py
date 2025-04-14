@@ -165,7 +165,7 @@ async def list_app() -> List[str]:
     success, result = await _execute_command(f"hdc shell bm dump -a")
     if success:
         raw = result.split('\n')
-        return [item.strip() for item in raw]
+        return [item.strip() for item in raw if not item.startswith("ID") and item != ""]
 
 async def has_app(package_name: str) -> bool:
     success, data = await _execute_command("hdc shell bm dump -a")
@@ -261,7 +261,7 @@ async def dump_hierarchy() -> Dict:
     """
     _tmp_path = f"/data/local/tmp/hierarchy_tmp.json"
     await _execute_command(f"hdc shell uitest dumpLayout -p {_tmp_path}")
-    await _execute_command(f"hdc recv file {_tmp_path} tmp.json")
+    await _execute_command(f"hdc file recv {_tmp_path} ./tmp.json")
     
         
 async def get_uilayout() -> str:
@@ -324,3 +324,4 @@ async def get_uilayout() -> str:
 
     result = "\n\n".join(clickable_elements)
     return result
+

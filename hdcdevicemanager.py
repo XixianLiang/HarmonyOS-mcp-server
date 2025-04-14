@@ -1,5 +1,5 @@
 from PIL import Image as PILImage
-from hdc.hdc import NodeInfo, list_devices, _execute_command
+from hdc.hdc import NodeInfo, _execute_command, dump_hierarchy
 import asyncio
 
 
@@ -45,22 +45,11 @@ async def launch_package(package_name: str) -> str:
         bundle_name = package_info["hapModuleInfos"][0]["bundleName"]
         entry_ability = package_info["hapModuleInfos"][0]["mainAbility"]
         
-        res = self.device.shell(f"aa start -b {bundle_name} -a {entry_ability}").output
-        if "start ability successfully" in res:
-            return f"[Success] {res}"
-        else:
+        success, res = _execute_command(f"hdc shell aa start -b {bundle_name} -a {entry_ability}").output
+        if not success or "start ability successfully" not in res:
             return f"[Fail] {res}"
+        return f"[Success] {res}"        
 
-
-async def execute_hdc_shell_command(command: str) -> str:
-    """Executes an HDC command and returns the output."""
-    await self.check_device()
-    if command.startswith("hdc shell "):
-        command = command[10:]
-    elif command.startswith("hdc "):
-        command = command[4:]
-    result = await self.device.shell(command)
-    return result
 
 # async def take_screenshot(self) -> None:
 #     """
@@ -89,7 +78,7 @@ async def get_uilayout() -> str:
     layout example:
     """
 
-    res = await dump_hierarchy()
+    await dump_hierarchy()
 
     import re
 
@@ -128,8 +117,11 @@ async def get_uilayout() -> str:
 
         for child in root["children"]:
             traverseTree(child)
-
-    traverseTree(root=res)
+    
+    import json
+    with open("tmp.json", "r") as fp:
+        tree = json.load(fp)
+    traverseTree(root=tree)
     if not clickable_elements:
         return "No clickable elements found with text or description"
 
@@ -167,8 +159,8 @@ async def input_text(self, center, text):
 
 
 async def main():
-    await click("(299, 2147)")
-    print(await get_packages())
+    # await click("(299, 2147)")
+    print(await get_uilayout())
 
 if __name__ == "__main__":
     asyncio.run(main())
