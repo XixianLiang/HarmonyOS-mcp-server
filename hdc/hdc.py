@@ -13,6 +13,9 @@ from .proto import KeyCode
 from .utils import FreePort
 from . import logger
 from logging import INFO, info
+from mcp.server.fastmcp import Image
+
+DEFAULT_COUNTRY_CODE = "+86"
 
 class NodeInfo(TypedDict):
     accessibilityId: str
@@ -141,7 +144,7 @@ async def _execute_command(cmd: str, timeout: int = None) -> tuple[bool, str]:
 #     return result
 
 async def recv_file(rpath: str, lpath: str):
-    success, result = await _execute_command(f"hdc shell file recv {rpath} {lpath}")
+    success, result = await _execute_command(f"hdc file recv {rpath} {lpath}")
     if success:
         return result
 
@@ -165,7 +168,7 @@ async def list_app() -> List[str]:
     success, result = await _execute_command(f"hdc shell bm dump -a")
     if success:
         raw = result.split('\n')
-        return [item.strip() for item in raw]
+        return [item.strip() for item in raw if not item.startswith("ID") and item != ""]
 
 async def has_app(package_name: str) -> bool:
     success, data = await _execute_command("hdc shell bm dump -a")
@@ -254,6 +257,16 @@ async def screenshot(path: str) -> str:
     await _execute_command(f"hdc shell rm -rf {_tmp_path}")  # remove local path
     return path
 
+async def get_screenshot() -> Image:
+    """Takes a screenshot of the device and returns it.
+    Returns:
+        Image: the screenshot
+    """
+    path = await screenshot("screenshot.png")
+    return Image(path=path)
+
+async def call_number(phone_numer: str) -> str:
+    pass
 
 
 async def dump_hierarchy() -> Dict:
@@ -324,3 +337,4 @@ async def get_uilayout() -> str:
 
     result = "\n\n".join(clickable_elements)
     return result
+
