@@ -2,7 +2,7 @@
     Handle with apps
 """
 
-from typing import Union, List, Dict, Tuple, TypedDict
+from typing import Union, List, Dict, Tuple
 import re
 from .system import _execute_command
 
@@ -10,7 +10,7 @@ async def list_app() -> List[str]:
     """
     Get all installed packages on the device
     Returns:
-        str: A list of all installed packages on the device as a string
+        A list of all installed packages on the device as a string
     """
     success, result = await _execute_command(f"hdc shell bm dump -a")
     if success:
@@ -18,14 +18,13 @@ async def list_app() -> List[str]:
         return [item.strip() for item in raw if not item.startswith("ID") and item != ""]
 
 async def has_app(package_name: str) -> bool:
-    success, data = await _execute_command("hdc shell bm dump -a")
-    if success:
-        return True if package_name in data else False
-
-async def start_app(package_name: str, ability_name: str):
-    success, result = await _execute_command(f"hdc shell aa start -a {ability_name} -b {package_name}")
-    if success:
-        return "Success" in result
+    """
+    check if the given package is installed on the device
+    Args:
+        package_name
+    """
+    apps = await list_app
+    return package_name in apps
 
 async def stop_app(package_name: str):
     success, result = _execute_command(f"hdc shell aa force-stop {package_name}")
@@ -63,3 +62,37 @@ async def current_app() -> Tuple[str, str]:
     if success:
         results = __extract_info(output)
         return results[0] if results else (None, None)
+
+async def launch_app(package_name: str) -> str:
+    """
+    launch app accrodingt to the given package name.
+    Args:
+        package_name: the package name of the package.
+    """
+    try:
+        if package_name not in await list_app():
+            return (
+                f"[Fail] the given package {package_name} not installed."
+                " Use `list_app` to checkout the available apps"
+            )
+        
+        success, output = await _execute_command(f"hdc shell bm dump -n {package_name}")
+        if not success:
+            return f"[Fail] fail when dumping app info: {output}"
+
+        json_start = output.find("{")
+        if json_start == -1:
+            return "[Fail] No such package"
+        
+        import json
+        package_info = json.loads(output[json_start:])
+
+        bundle_name = package_info["hapModuleInfos"][0]["bundleName"]
+        entry_ability = package_info["hapModuleInfos"][0]["mainAbility"]
+        
+        success, res = await _execute_command(f"hdc shell aa start -b {bundle_name} -a {entry_ability}")
+        if not success or "start ability successfully" not in res:
+            return f"[Fail] {res}"
+        return f"[Success] {res}"
+    except BaseException as e:
+        return f"[Fail] {e}"

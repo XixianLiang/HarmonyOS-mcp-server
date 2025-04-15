@@ -1,21 +1,18 @@
-import logging
-from hdc.app_manager import list_app
-from hdc.ui_manager import get_uilayout
+from hdc.app_manager import list_app, launch_app
+from hdc.window_manager import get_uilayout, click, input_text
 from hdc.media import get_screenshot
-from hdc.system import launch_package
-
 from mcp.server.fastmcp import FastMCP
 
-# Initialize MCP and device manager
-# Error checking is done inside HDCDeviceManager's constructor
+# Initialize MCP server
 mcp = FastMCP("harmonyos")
 
 mcp.tool()(list_app)
 mcp.tool()(get_uilayout)
-mcp.tool()(launch_package)
+mcp.tool()(launch_app)
 mcp.tool()(get_screenshot)
+mcp.tool()(click)
+mcp.tool()(input_text)
 
-# logging.info("Activating server")
-# if __name__ == "__main__":
-#     # print(deviceManager.get_uilayout())
-#     mcp.run(transport="stdio")
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
+

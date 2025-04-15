@@ -8,7 +8,7 @@
 import uuid
 from .system import _execute_command, recv_file
 from mcp.server.fastmcp import Image
-from PIL import Image as PILImage
+# from PIL import Image as PILImage
 
 
 async def screenshot(path: str) -> str:

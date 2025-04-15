@@ -8,15 +8,43 @@
 from .system import _execute_command
 from .Component import ComponentNode
 import re
+    
 
-async def tap(x: int, y: int) -> None:
-    await _execute_command(f"hdc shell uitest uiInput click {x} {y}")
+async def click(self, center) -> bool:
+    """
+    click the given coordinate
+    Args:
+        center: a string like "(x, y)", sample: "(227, 168)"
+    """
+    import re
+    matches = re.findall(r"(\d+)\s*,\s*(\d+)", center)
+    if not matches:
+        return "[Fail] The input should be given like `(277, 168)` : click x=277, y=168"
+    
+    x, y = map(int, matches[0])
+    success, _ = await _execute_command(f"hdc shell uitest uiInput click {x} {y}")
+    
+    return success
 
-async def swipe(x1, y1, x2, y2, speed=1000):
-    await _execute_command(f"hdc shell uitest uiInput swipe {x1} {y1} {x2} {y2} {speed}")
+# async def swipe(x1, y1, x2, y2, speed=1000):
+    # await _execute_command(f"hdc shell uitest uiInput swipe {x1} {y1} {x2} {y2} {speed}")
 
-async def input_text(x: int, y: int, text: str):
-    await _execute_command(f"hdc shell uitest uiInput inputText {x} {y} {text}")
+async def input_text(self, center, text) -> bool:
+    """
+    input text to the given coordinate
+    Args:
+        center: a string like "(x, y)", sample: "(227, 168)"
+        text: the text to input
+    """
+    import re
+    matches = re.findall(r"(\d+)\s*,\s*(\d+)", center)
+    if not matches:
+        return "[Fail] The input should be given like `(277, 168) hello world`"
+    
+    x, y = map(int, matches[0])
+    success, _ = await _execute_command(f"hdc shell uitest uiInput inputText {x} {y} {text}")
+    
+    return success
 
 async def screen_state() -> str:
     """
@@ -39,6 +67,7 @@ async def wakeup():
 
 async def dump_hierarchy():
     """
+    dump the hierachy and save it to `tmp.json` in the local working dir
     """
     _tmp_path = f"/data/local/tmp/hierarchy_tmp.json"
     await _execute_command(f"hdc shell uitest dumpLayout -p {_tmp_path}")

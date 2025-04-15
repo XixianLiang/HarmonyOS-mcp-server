@@ -80,32 +80,6 @@ async def recv_file(rpath: str, lpath: str):
     if success:
         return result
 
-
-async def launch_package(package_name: str) -> str:
-    """
-    launch the given package.
-    Args:
-        :package_name:
-    """
-    success, output = await _execute_command(f"hdc shell bm dump -n {package_name}")
-    if not success:
-        return f"[Fail] fail when dumping: {output}"
-
-    json_start = output.find("{")
-    if json_start == -1:
-        return "[Fail] No such package"
-    
-    import json
-    package_info = json.loads(output[json_start:])
-
-    bundle_name = package_info["hapModuleInfos"][0]["bundleName"]
-    entry_ability = package_info["hapModuleInfos"][0]["mainAbility"]
-    
-    success, res = await _execute_command(f"hdc shell aa start -b {bundle_name} -a {entry_ability}")
-    if not success or "start ability successfully" not in res:
-        return f"[Fail] {res}"
-    return f"[Success] {res}"
-
 async def check_hdc_installed() -> bool:
     """
     Check if HDC is installed on the system.
