@@ -10,7 +10,7 @@ from .Component import ComponentNode
 import re
     
 
-async def click(self, center) -> bool:
+async def click(center) -> bool:
     """
     click the given coordinate
     Args:
@@ -23,13 +23,28 @@ async def click(self, center) -> bool:
     
     x, y = map(int, matches[0])
     success, _ = await _execute_command(f"hdc shell uitest uiInput click {x} {y}")
-    
+
     return success
 
-# async def swipe(x1, y1, x2, y2, speed=1000):
-    # await _execute_command(f"hdc shell uitest uiInput swipe {x1} {y1} {x2} {y2} {speed}")
+async def long_click(center) -> bool:
+    """
+    long click the given coordinate
+    Args:
+        center: a string like "(x, y)", sample: "(227, 168)"
+    """
+    import re
+    matches = re.findall(r"(\d+)\s*,\s*(\d+)", center)
+    if not matches:
+        return "[Fail] The input should be given like `(277, 168)` : click x=277, y=168"
+    
+    x, y = map(int, matches[0])
+    success, _ = await _execute_command(f"hdc shell uitest uiInput longClick {x} {y}")
+    return success
 
-async def input_text(self, center, text) -> bool:
+async def swipe(x1, y1, x2, y2, speed=1000):
+    await _execute_command(f"hdc shell uitest uiInput swipe {x1} {y1} {x2} {y2} {speed}")
+
+async def input_text(center, text) -> bool:
     """
     input text to the given coordinate
     Args:
@@ -103,21 +118,40 @@ async def get_uilayout() -> str:
         traverse the tree to extract all layouts
         """
         node_info: ComponentNode = root["attributes"]
-        text = node_info["text"]
-        desc = node_info["description"]
-        bounds = node_info["bounds"]
+        text = node_info["text"].strip()
+        desc = node_info["description"].strip()
+        bounds = node_info["bounds"].strip()
+        clickable = node_info["clickable"].strip()
+        id = node_info["id"].strip()
 
-        if text or desc:
+        if clickable == "true" or text or desc:
+            if clickable == "true":
+                element_info = "Clickable element:"
+            else:
+                element_info = "Text element"
             center = calculate_center(bounds)
-            element_info = "Clickable element:"
+            if id:
+                element_info += f"\n Id: {id}"
             if text:
                 element_info += f"\n  Text: {text}"
             if desc:
                 element_info += f"\n  Description: {desc}"
-            element_info += f"\n  Bounds: {bounds}"
             if center:
                 element_info += f"\n  Center: ({center[0]}, {center[1]})"
+            element_info += f"\n  Bounds: {bounds}"
             clickable_elements.append(element_info)
+
+        # if text or desc:
+        #     center = calculate_center(bounds)
+        #     element_info = "Clickable element:"
+        #     if text:
+        #         element_info += f"\n  Text: {text}"
+        #     if desc:
+        #         element_info += f"\n  Description: {desc}"
+        #     element_info += f"\n  Bounds: {bounds}"
+        #     if center:
+        #         element_info += f"\n  Center: ({center[0]}, {center[1]})"
+        #     clickable_elements.append(element_info)
 
         for child in root["children"]:
             traverseTree(child)

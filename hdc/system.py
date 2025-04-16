@@ -60,10 +60,10 @@ async def _execute_command(cmd: str, timeout: int = None) -> tuple[bool, str]:
     
 async def shell(cmd: str) -> str:
     # ensure the command is wrapped in double quotes
-    if cmd[0] != '\"':
-        cmd = "\"" + cmd
-    if cmd[-1] != '\"':
-        cmd += '\"'
+    # if cmd[0] != '\"':
+    #     cmd = "\"" + cmd
+    # if cmd[-1] != '\"':
+    #     cmd += '\"'
     success, result = await _execute_command(f"hdc shell {cmd}")
     if not success:
         raise HdcError("HDC shell error", f"{cmd}\n{result}")
