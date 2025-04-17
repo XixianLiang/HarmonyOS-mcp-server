@@ -7,6 +7,7 @@
 """
 from .system import _execute_command
 from .Component import ComponentNode
+from .proto import KeyCode
 import re
 
 
@@ -44,7 +45,7 @@ async def long_click(center) -> bool:
 async def swipe(x1, y1, x2, y2, speed=1000):
     await _execute_command(f"hdc shell uitest uiInput swipe {x1} {y1} {x2} {y2} {speed}")
 
-async def input_text(center, text) -> bool:
+async def input_text(center, text) -> str:
     """
     input text to the given coordinate
     Args:
@@ -55,11 +56,11 @@ async def input_text(center, text) -> bool:
     matches = re.findall(r"(\d+)\s*,\s*(\d+)", center)
     if not matches:
         return "[Fail] The input should be given like `(277, 168) hello world`"
-    
+
     x, y = map(int, matches[0])
-    success, _ = await _execute_command(f"hdc shell uitest uiInput inputText {x} {y} {text}")
-    
-    return success
+    await _execute_command(f"hdc shell uitest uiInput inputText {x} {y} {text}")
+    await _execute_command(f"hdc shell uitest uiInput keyEvent {KeyCode.BACK}")
+
 
 async def screen_state() -> str:
     """
@@ -153,14 +154,22 @@ async def get_uilayout() -> str:
                 continue
             traverseTree(child)
 
-    import json
-    with open("tmp.json", "r") as fp:
-        res = fp.read()
-        start = res.find("{")
-        root = json.loads(res[start:])
+    root = get_hierachy_tree()
+    
     traverseTree(root)
     if not clickable_elements:
         return "No clickable elements found with text or description"
 
     result = "\n\n".join(clickable_elements)
     return result
+
+def get_hierachy_tree():
+    """
+    parse the hierachy tree
+    """
+    import json
+    with open("tmp.json", "r") as fp:
+        res = fp.read()
+        start = res.find("{")
+        root = json.loads(res[start:])
+    return root
