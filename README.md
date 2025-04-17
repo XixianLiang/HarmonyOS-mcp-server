@@ -1,8 +1,18 @@
-# HarmonyOS MCP Server
+<div align="center">
+<h1>HarmonyOS MCP Server</h1>
+
+ <a href='LICENSE'><img src='https://img.shields.io/badge/License-MIT-orange'></a> &nbsp;&nbsp;&nbsp;
+ <a><img src='https://img.shields.io/badge/python-3.13-blue'></a>
+</div>
+
+<div align="center">
+    <img style="max-width: 500px; width: 60%;" width="1111" alt="image" src="https://github.com/user-attachments/assets/7c2e6879-f583-48d7-b467-c4c6d99c5fab" />
+</div>
+
+### Intro
 
 This is a MCP server for manipulating harmonyOS Device.
 
-See our example.
 
 ### Quick Start
 
