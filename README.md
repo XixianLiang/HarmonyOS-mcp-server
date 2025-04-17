@@ -9,27 +9,40 @@
     <img style="max-width: 500px; width: 60%;" width="1111" alt="image" src="https://github.com/user-attachments/assets/7c2e6879-f583-48d7-b467-c4c6d99c5fab" />
 </div>
 
-### Intro
+## Intro
 
 This is a MCP server for manipulating harmonyOS Device.
 
 
-### Quick Start
+## Quick Start
+
+### Installation
+
+1. Clone this repo
+   
+```bash
+git clone https://github.com/XixianLiang/HarmonyOS-mcp-server.git
+cd HarmonyOS-mcp-server
+```
+
+2. Setup the envirnment.
 
 ```bash
 uv python install 3.13
 uv sync
 ```
 
+### Usage
+
 You can use [Claude Desktop](https://modelcontextprotocol.io/quickstart/user) to try our tool.
 
 
-
-You can also use [openai-agents SDK](https://openai.github.io/openai-agents-python/mcp/) to try the mcp server.
-
-Here's an example
+You can also use [openai-agents SDK](https://openai.github.io/openai-agents-python/mcp/) to try the mcp server. Here's an example
 
 ```python
+"""
+Example: Use Openai-agents SDK to call HarmonyOS-mcp-server
+"""
 import asyncio
 import os
 
@@ -54,7 +67,7 @@ async def main():
     # Use async context manager to initialize the server
     async with MCPServerStdio(
         params={
-            "command": "<...>/Python.framework/Versions/3.11/bin/uv",
+            "command": "<...>/bin/uv",
             "args": [
                 "--directory",
                 "<...>/harmonyos-mcp-server",
