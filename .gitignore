@@ -15,3 +15,5 @@ window_dump.xml
 output.mov
 config.yaml
 test.py
+tmp.json
+*.log

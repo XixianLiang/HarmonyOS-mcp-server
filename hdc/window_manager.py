@@ -141,18 +141,6 @@ async def get_uilayout() -> str:
             element_info += f"\n  Bounds: {bounds}"
             clickable_elements.append(element_info)
 
-        # if text or desc:
-        #     center = calculate_center(bounds)
-        #     element_info = "Clickable element:"
-        #     if text:
-        #         element_info += f"\n  Text: {text}"
-        #     if desc:
-        #         element_info += f"\n  Description: {desc}"
-        #     element_info += f"\n  Bounds: {bounds}"
-        #     if center:
-        #         element_info += f"\n  Center: ({center[0]}, {center[1]})"
-        #     clickable_elements.append(element_info)
-
         for child in root["children"]:
             traverseTree(child)
 
