@@ -59,7 +59,7 @@ async def input_text(center, text) -> str:
 
     x, y = map(int, matches[0])
     await _execute_command(f"hdc shell uitest uiInput inputText {x} {y} {text}")
-    await _execute_command(f"hdc shell uitest uiInput keyEvent {KeyCode.BACK}")
+    await _execute_command(f"hdc shell uitest uiInput keyEvent {KeyCode.ENTER.value}")
 
 
 async def screen_state() -> str:
@@ -168,7 +168,7 @@ def get_hierachy_tree():
     parse the hierachy tree
     """
     import json
-    with open("tmp.json", "r") as fp:
+    with open("tmp.json", "r", encoding="utf-8") as fp:
         res = fp.read()
         start = res.find("{")
         root = json.loads(res[start:])
