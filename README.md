@@ -14,6 +14,10 @@
 This is a MCP server for manipulating harmonyOS Device.
 
 
+
+https://github.com/user-attachments/assets/efaf7451-35d6-4ffc-81fa-fad79d3e6b02
+
+
 ## Quick Start
 
 ### Installation
