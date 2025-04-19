@@ -8,7 +8,7 @@ mcp = FastMCP("harmonyos")
 
 mcp.tool()(list_app)
 mcp.tool()(launch_app)
-mcp.tool()(stop_app)        # 跑不了
+mcp.tool()(stop_app)
 mcp.tool()(current_app)
 
 mcp.tool()(media_play_pause)
