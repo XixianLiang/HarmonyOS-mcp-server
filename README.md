@@ -37,9 +37,12 @@ uv sync
 
 ### Usage
 
+
+#### 1.Claude Desktop
+
 You can use [Claude Desktop](https://modelcontextprotocol.io/quickstart/user) to try our tool.
 
-
+#### 2.Openai SDK
 You can also use [openai-agents SDK](https://openai.github.io/openai-agents-python/mcp/) to try the mcp server. Here's an example
 
 ```python
@@ -84,7 +87,109 @@ async def main():
             print(f"View trace: https://platform.openai.com/traces/trace?trace_id={trace_id}\n")
             await run(server)
 
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+#### 3.Langchain
+You can use [LangGraph](https://langchain-ai.github.io/langgraph/concepts/why-langgraph/), a flexible LLM agent framework to design your workflows. Here's an example
+
+```python
+"""
+langgraph_mcp.py
+"""
+
+server_params = StdioServerParameters(
+    command="/home/chad/.local/bin/uv",
+    args=["--directory",
+          ".",
+          "run",
+          "server.py"],
+    
+)
+
+
+#This fucntion would use langgraph to build your own agent workflow
+async def create_graph(session):
+    llm = ChatOllama(model="qwen2.5:7b", temperature=0)
+    #!!!load_mcp_tools is a langchain package function that integrates the mcp into langchain.
+    #!!!bind_tools fuction enable your llm to access your mcp tools
+    tools = await load_mcp_tools(session)
+    llm_with_tool = llm.bind_tools(tools)
+
+    
+    system_prompt = await load_mcp_prompt(session, "system_prompt")
+    prompt_template = ChatPromptTemplate.from_messages([
+        ("system", system_prompt[0].content),
+        MessagesPlaceholder("messages")
+    ])
+    chat_llm = prompt_template | llm_with_tool
+
+    # State Management
+    class State(TypedDict):
+        messages: Annotated[List[AnyMessage], add_messages]
+
+    # Nodes
+    def chat_node(state: State) -> State:
+        state["messages"] = chat_llm.invoke({"messages": state["messages"]})
+        return state
+
+    # Building the graph
+    # graph is like a workflow of your agent.
+    #If you want to know more langgraph basic,reference this link (https://langchain-ai.github.io/langgraph/tutorials/get-started/1-build-basic-chatbot/#3-add-a-node)
+    graph_builder = StateGraph(State)
+    graph_builder.add_node("chat_node", chat_node)
+    graph_builder.add_node("tool_node", ToolNode(tools=tools))
+    graph_builder.add_edge(START, "chat_node")
+    graph_builder.add_conditional_edges("chat_node", tools_condition, {"tools": "tool_node", "__end__": END})
+    graph_builder.add_edge("tool_node", "chat_node")
+    graph = graph_builder.compile(checkpointer=MemorySaver())
+    return graph
+
+
+
+
+
+async def main():
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+
+            config = RunnableConfig(thread_id=1234,recursion_limit=15)
+            # Use the MCP Server in the graph
+            agent = await create_graph(session)
+
+            while True:
+                message = input("User: ")
+                try:
+                    response = await agent.ainvoke({"messages": message}, config=config)
+                    print("AI: "+response["messages"][-1].content)
+                except RecursionError:
+                    result = None
+                    logging.error("Graph recursion limit reached.")
+
 
 if __name__ == "__main__":
     asyncio.run(main())
+```
+
+Write the system prompt in `server.py`
+
+```python
+"""
+server.py
+"""
+@mcp.prompt()
+def system_prompt() -> str:
+    """System prompt description"""
+    return """
+    You are an AI assistant use the tools if needed.
+    """
+```
+Use `load_mcp_prompt` function to get your prompt from mcp server.
+```python
+"""
+langgraph_mcp.py
+"""
+prompts = await load_mcp_prompt(session, "system_prompt")
 ```

@@ -25,6 +25,17 @@ mcp.tool()(long_click)
 mcp.tool()(swipe)
 mcp.tool()(input_text)
 
+
+@mcp.prompt()
+def system_prompt() -> str:
+    """System prompt description"""
+    return """
+    You are an AI assistant use the tools if needed.
+    """
+
+
+
+
 if __name__ == "__main__":
     mcp.run(transport="stdio")
 
