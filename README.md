@@ -38,11 +38,11 @@ uv sync
 ### Usage
 
 
-#### Claude Desktop
+#### 1.Claude Desktop
 
 You can use [Claude Desktop](https://modelcontextprotocol.io/quickstart/user) to try our tool.
 
-#### Openai SDK
+#### 2.Openai SDK
 You can also use [openai-agents SDK](https://openai.github.io/openai-agents-python/mcp/) to try the mcp server. Here's an example
 
 ```python
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-#### Langchain
+#### 3.Langchain
 You can use [LangGraph](https://langchain-ai.github.io/langgraph/concepts/why-langgraph/), a flexible LLM agent framework to design your workflows. Here's an example
 
 ```python
