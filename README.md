@@ -37,9 +37,12 @@ uv sync
 
 ### Usage
 
+
+#### Claude Desktop
+
 You can use [Claude Desktop](https://modelcontextprotocol.io/quickstart/user) to try our tool.
 
-
+#### Openai SDK
 You can also use [openai-agents SDK](https://openai.github.io/openai-agents-python/mcp/) to try the mcp server. Here's an example
 
 ```python
@@ -88,8 +91,8 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-
-You can use [LangGraph](https://langchain-ai.github.io/langgraph/concepts/why-langgraph/) more flexible framework to design your own agent workfolw. Here's an example
+#### Langchain
+You can use [LangGraph](https://langchain-ai.github.io/langgraph/concepts/why-langgraph/), a flexible LLM agent framework to design your workflows. Here's an example
 
 ```python
 """
@@ -170,7 +173,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-You can design your system prompt in your mcp server
+Write the system prompt in `server.py`
 
 ```python
 """
@@ -183,7 +186,7 @@ def system_prompt() -> str:
     You are an AI assistant use the tools if needed.
     """
 ```
-Use load_mcp_prompt function to get your prompt from mcp server
+Use `load_mcp_prompt` function to get your prompt from mcp server.
 ```python
 """
 langgraph_mcp.py
