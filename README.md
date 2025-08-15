@@ -3,6 +3,8 @@
 
  <a href='LICENSE'><img src='https://img.shields.io/badge/License-MIT-orange'></a> &nbsp;&nbsp;&nbsp;
  <a><img src='https://img.shields.io/badge/python-3.13-blue'></a>
+
+[![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/XixianLiang/HarmonyOS-mcp-server)](https://archestra.ai/mcp-catalog/xixianliang__harmonyos-mcp-server)
 </div>
 
 <div align="center">
